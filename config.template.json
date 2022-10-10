@@ -1,0 +1,15 @@
+{
+  "logging_level": "TODO",
+  "sendgrid": {
+    "token": "TODO",
+    "from_email": "TODO",
+    "to_email": [ "TODO" ]
+  },
+  "ledger": {
+    "file-location": "TODO"
+  },
+  "reports": {
+    "grocery-trend-month": "TODO",
+    "electricity-trend-month": "TODO"
+  }
+}
