@@ -15,16 +15,17 @@ with open(str(getcwd()) + "/config.json") as config_file:
 
 report = report_generator.generate()
 
-message = Mail(
-    from_email='anurag.peshne@gmail.com',
-    to_emails='anurag.peshne@gmail.com',
-    subject='Expense Times',
-    html_content=report)
-try:
-    sg = SendGridAPIClient(config["sendgrid"]["token"])
-    response = sg.send(message)
-    print(response.status_code)
-    print(response.body)
-    print(response.headers)
-except Exception as e:
-    print(e)
+for to_email in config["sendgrid"]["to_emails"]:
+    message = Mail(
+        from_email=config["sendgrid"]["from_email"],
+        to_emails=to_email,
+        subject='Expense Times 2022-September',
+        html_content=report)
+    try:
+        sg = SendGridAPIClient(config["sendgrid"]["token"])
+        response = sg.send(message)
+        print(response.status_code)
+        print(response.body)
+        print(response.headers)
+    except Exception as e:
+        print(e)

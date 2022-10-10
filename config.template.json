@@ -3,7 +3,7 @@
   "sendgrid": {
     "token": "TODO",
     "from_email": "TODO",
-    "to_email": [ "TODO" ]
+    "to_emails": [ "TODO" ]
   },
   "ledger": {
     "file-location": "TODO"
