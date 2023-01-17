@@ -13,13 +13,13 @@ from sendgrid.helpers.mail import Mail
 with open(str(getcwd()) + "/config.json") as config_file:
     config = json.load(config_file)
 
-report = report_generator.generate()
+report = report_generator.generate_html()
 
 for to_email in config["sendgrid"]["to_emails"]:
     message = Mail(
         from_email=config["sendgrid"]["from_email"],
         to_emails=to_email,
-        subject='Expense Times 2022-September',
+        subject='Expense Times 2022-December',
         html_content=report)
     try:
         sg = SendGridAPIClient(config["sendgrid"]["token"])
