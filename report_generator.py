@@ -6,6 +6,7 @@ import logging
 from os import getcwd
 from datetime import datetime
 from matplot_charts import make_pie_chart, make_line_chart_monthly_trends
+from data_manager import get_monthly_expenses, get_trend_expenses
 from subprocess import check_output
 from utils import *
 
@@ -25,22 +26,7 @@ last_month_year = str(today.year if today.month > 1 else today.year - 1)
 logging.debug("Year Month set to: " + last_month_year + "-" + last_month)
 
 def expense_summary_chart():
-    cmd = ledger_base_cmd(config) + [
-            "-b", format_date(last_month_year, last_month, "1"),
-            "-e", format_date(last_month_year, last_month,
-                              get_last_day(last_month)),
-            "balance", "expenses", "--no-total", "--flat",
-            "--format", "%(amount)" + DELIMITER + "%(account)\n"]
-    output = check_output(cmd).decode()
-    parsed_data = []
-    for row in output.split('\n'):
-        if row:
-            amount, acc = row.split(DELIMITER)
-            acc = clear_prefix(acc, "Expenses")
-            amount = convert_currency_to_float(amount)
-            parsed_data.append((amount, acc))
-    parsed_data = sorted(parsed_data, key=lambda amt_acc: amt_acc[0],
-                         reverse=True)
+    parsed_data = get_monthly_expenses(last_month_year, last_month)
     chart = make_pie_chart(parsed_data)
 
     table_content = []
@@ -65,33 +51,7 @@ def expense_summary_chart():
     return chart_div
 
 def trends_chart(term, years_to_compare=3):
-    start_year = int(last_month_year) - years_to_compare + 1
-    yearly_data = {}
-    for year in range(start_year, int(last_month_year) + 1):
-        cmd = ledger_base_cmd(config) + ["register",
-                                         term,
-                                         "--no-total",
-                                         "--flat",
-                                         "--monthly",
-                                         "--begin", str(year),
-                                         "--end", str(year + 1),
-                                         "--format",
-                                         DELIMITER.join(["%(date)", "%t\n"])]
-        output = check_output(cmd).decode()
-        group_by_month = [0] * 12
-        for row in output.split('\n'):
-            if not row:
-                continue
-            rowsplit = row.split(DELIMITER)
-            if len(rowsplit) == 1:
-                # handle cases in which multiple currencies were used in a
-                # single transactions later.
-                continue
-            date, amount = rowsplit
-            _, month, _ = date.split("/")
-            group_by_month[int(month) - 1] += round(
-                    convert_currency_to_float(amount))
-        yearly_data[year] = group_by_month
+    yearly_data = get_trend_expenses(last_month_year, term, years_to_compare)
     chart = make_line_chart_monthly_trends(yearly_data, term)
     chart_div = """
 <div style="width=900px; font-family:monospace">
